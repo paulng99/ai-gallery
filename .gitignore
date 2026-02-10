@@ -1,0 +1,24 @@
+# General
+.DS_Store
+.trae/
+
+# Node (Web)
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.env*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vercel
+
+# Python (AI Service)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.env
+.pytest_cache/
