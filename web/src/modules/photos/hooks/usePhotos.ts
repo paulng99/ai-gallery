@@ -74,9 +74,20 @@ export function usePhotos() {
     }
   }
 
+  async function filterByActivity(activityName: string) {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/photos?activityName=${encodeURIComponent(activityName)}`);
+      const data = await res.json();
+      setPhotos(data.items ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     refresh();
   }, []);
 
-  return { photos, groups, loading, refresh, upload, search };
+  return { photos, groups, loading, refresh, upload, search, filterByActivity };
 }

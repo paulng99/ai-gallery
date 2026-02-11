@@ -50,17 +50,22 @@ def _init_db() -> None:
 
 _init_db()
 
-def list_photos() -> List[Photo]:
+def list_photos(activity_name: Optional[str] = None) -> List[Photo]:
   conn = sqlite3.connect(_get_db_path())
-  cursor = conn.execute(
-    """
+  query = """
     SELECT id, file_id, file_name, file_url, mime_type, activity_name,
            activity_date, location, group_name, owner, created_at,
            description, hashtags, embedding_status
     FROM photos
-    ORDER BY created_at DESC
-    """
-  )
+  """
+  params = []
+  if activity_name:
+    query += " WHERE activity_name = ?"
+    params.append(activity_name)
+  
+  query += " ORDER BY created_at DESC"
+  
+  cursor = conn.execute(query, tuple(params))
   rows = cursor.fetchall()
   conn.close()
   items = []
@@ -91,7 +96,7 @@ def list_activity_groups() -> List[ActivityGroup]:
   cursor = conn.execute(
     """
     SELECT 
-      COALESCE(NULLIF(activity_name, ''), 'Uncategorized') as group_name,
+      COALESCE(NULLIF(activity_name, ''), 'Uncategorized') as activity_group,
       COUNT(*) as count,
       id, file_id, file_name, file_url, mime_type, activity_name,
       activity_date, location, group_name, owner, created_at,
@@ -99,7 +104,7 @@ def list_activity_groups() -> List[ActivityGroup]:
     FROM (
       SELECT * FROM photos ORDER BY RANDOM()
     )
-    GROUP BY group_name
+    GROUP BY activity_group
     ORDER BY created_at DESC
     """
   )

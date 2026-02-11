@@ -29,8 +29,8 @@ async def analyze_photo_task(photo_id: str, image_url: str):
         update_photo_ai_data(photo_id, "", "", "error")
 
 @router.get("/photos")
-def get_photos():
-  items = list_photos()
+def get_photos(activityName: str | None = None):
+  items = list_photos(activity_name=activityName)
   return {"items": [p.model_dump() for p in items]}
 
 @router.get("/photos/groups")

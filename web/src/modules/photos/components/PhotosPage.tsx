@@ -80,7 +80,7 @@ export default function PhotosPage() {
   const [view, setView] = useState<"albums" | "grid" | "upload">("albums");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
-  const { photos, groups, loading, upload, search } = usePhotos();
+  const { photos, groups, loading, upload, search, filterByActivity } = usePhotos();
   const labels = copy[locale];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -92,7 +92,7 @@ export default function PhotosPage() {
 
   const handleActivityClick = (activityName: string) => {
     setSearchQuery(activityName);
-    search(activityName); // This filters by query, assuming backend search handles activity name too
+    filterByActivity(activityName);
     setSelectedActivity(activityName);
     setView("grid");
   };
