@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { Photo } from "../types";
 import { Calendar, MapPin, Users, User, Clock, Image as ImageIcon } from "lucide-react";
+import clsx from "clsx";
 
 type Labels = {
   empty: string;
@@ -16,9 +17,10 @@ type Labels = {
 type Props = {
   photos: Photo[];
   labels: Labels;
+  onActivityClick?: (activityName: string) => void;
 };
 
-export default function PhotosGrid({ photos, labels }: Props) {
+export default function PhotosGrid({ photos, labels, onActivityClick }: Props) {
   if (!photos.length) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
@@ -31,11 +33,19 @@ export default function PhotosGrid({ photos, labels }: Props) {
   }
 
   return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-2 sm:gap-4 space-y-2 sm:space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       {photos.map((photo) => (
         <div
           key={photo.id}
-          className="break-inside-avoid bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+          onClick={() => {
+            if (photo.activityName && onActivityClick) {
+              onActivityClick(photo.activityName);
+            }
+          }}
+          className={clsx(
+            "flex flex-col h-full bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300 group",
+            photo.activityName && onActivityClick && "cursor-pointer"
+          )}
         >
           <div className="relative w-full bg-gray-100" style={{ aspectRatio: '4/3' }}>
             {photo.fileUrl ? (
@@ -55,7 +65,7 @@ export default function PhotosGrid({ photos, labels }: Props) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
           
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-3 flex-1">
             <h3 className="font-semibold text-gray-900 line-clamp-1 text-lg">
               {photo.activityName || <span className="text-gray-400 italic">Untitled</span>}
             </h3>

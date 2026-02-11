@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { usePhotos } from "../hooks/usePhotos";
 import PhotosForm from "./PhotosForm";
@@ -270,14 +272,8 @@ export default function PhotosPage() {
             </div>
             <PhotosGrid
               photos={photos}
-              labels={{
-                empty: labels.empty,
-                activityName: labels.activityName,
-                activityDate: labels.activityDate,
-                location: labels.location,
-                groupName: labels.groupName,
-                owner: labels.owner,
-              }}
+              labels={labels}
+              onActivityClick={!selectedActivity ? handleActivityClick : undefined}
             />
           </div>
         )}
