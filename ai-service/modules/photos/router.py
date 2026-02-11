@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
 from uuid import uuid4
 from .models import Photo
-from .service import add_photo, list_photos, upload_to_drive, update_photo_ai_data
+from .service import add_photo, list_photos, upload_to_drive, update_photo_ai_data, list_activity_groups
 from ..ai.service import ai_service
 
 router = APIRouter()
@@ -32,6 +32,11 @@ async def analyze_photo_task(photo_id: str, image_url: str):
 def get_photos():
   items = list_photos()
   return {"items": [p.model_dump() for p in items]}
+
+@router.get("/photos/groups")
+def get_photo_groups():
+    groups = list_activity_groups()
+    return {"items": [g.model_dump() for g in groups]}
 
 @router.post("/photos")
 async def create_photo(

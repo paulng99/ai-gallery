@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Photo } from "../types";
+import type { Photo, ActivityGroup } from "../types";
 
 type UploadPhotoPayload = {
   file: File;
@@ -12,14 +12,22 @@ type UploadPhotoPayload = {
 
 export function usePhotos() {
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [groups, setGroups] = useState<ActivityGroup[]>([]);
   const [loading, setLoading] = useState(false);
 
   async function refresh() {
     setLoading(true);
     try {
-      const res = await fetch("/api/photos");
-      const data = await res.json();
-      setPhotos(data.items ?? []);
+      const [photosRes, groupsRes] = await Promise.all([
+        fetch("/api/photos"),
+        fetch("/api/photos/groups")
+      ]);
+      
+      const photosData = await photosRes.json();
+      const groupsData = await groupsRes.json();
+      
+      setPhotos(photosData.items ?? []);
+      setGroups(groupsData.items ?? []);
     } finally {
       setLoading(false);
     }
@@ -68,5 +76,5 @@ export function usePhotos() {
     refresh();
   }, []);
 
-  return { photos, loading, refresh, upload, search };
+  return { photos, groups, loading, refresh, upload, search };
 }

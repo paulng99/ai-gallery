@@ -16,3 +16,8 @@ class Photo(BaseModel):
   description: Optional[str] = None
   hashtags: Optional[str] = None
   embeddingStatus: Optional[str] = "pending"
+
+class ActivityGroup(BaseModel):
+  activityName: str
+  count: int
+  coverPhoto: Photo

@@ -31,11 +31,11 @@ export default function PhotosGrid({ photos, labels }: Props) {
   }
 
   return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-2 sm:gap-4 space-y-2 sm:space-y-4">
       {photos.map((photo) => (
         <div
           key={photo.id}
-          className="break-inside-avoid bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+          className="break-inside-avoid bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
         >
           <div className="relative w-full bg-gray-100" style={{ aspectRatio: '4/3' }}>
             {photo.fileUrl ? (

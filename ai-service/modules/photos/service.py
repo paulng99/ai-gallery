@@ -3,7 +3,7 @@ import json
 import os
 import sqlite3
 from typing import List, Optional, Tuple
-from .models import Photo
+from .models import Photo, ActivityGroup
 
 def _get_db_path() -> str:
   env_path = os.environ.get("PHOTO_DB_PATH")
@@ -84,6 +84,52 @@ def list_photos() -> List[Photo]:
       )
     )
   return items
+
+def list_activity_groups() -> List[ActivityGroup]:
+  conn = sqlite3.connect(_get_db_path())
+  # Strategy: Inner query randomizes order, Outer query groups by activity to pick the first one (which is random)
+  cursor = conn.execute(
+    """
+    SELECT 
+      COALESCE(NULLIF(activity_name, ''), 'Uncategorized') as group_name,
+      COUNT(*) as count,
+      id, file_id, file_name, file_url, mime_type, activity_name,
+      activity_date, location, group_name, owner, created_at,
+      description, hashtags, embedding_status
+    FROM (
+      SELECT * FROM photos ORDER BY RANDOM()
+    )
+    GROUP BY group_name
+    ORDER BY created_at DESC
+    """
+  )
+  rows = cursor.fetchall()
+  conn.close()
+  
+  groups = []
+  for row in rows:
+    photo = Photo(
+      id=row[2],
+      fileId=row[3],
+      fileName=row[4],
+      fileUrl=row[5],
+      mimeType=row[6],
+      activityName=row[7],
+      activityDate=row[8],
+      location=row[9],
+      groupName=row[10],
+      owner=row[11],
+      createdAt=row[12],
+      description=row[13],
+      hashtags=row[14],
+      embeddingStatus=row[15] or 'pending'
+    )
+    groups.append(ActivityGroup(
+      activityName=row[0],
+      count=row[1],
+      coverPhoto=photo
+    ))
+  return groups
 
 def add_photo(photo: Photo) -> Photo:
   conn = sqlite3.connect(_get_db_path())

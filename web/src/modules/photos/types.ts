@@ -14,3 +14,9 @@ export type Photo = {
   aiAnalysisStatus?: string;
   createdAt: string;
 };
+
+export type ActivityGroup = {
+  activityName: string;
+  count: number;
+  coverPhoto: Photo;
+};
