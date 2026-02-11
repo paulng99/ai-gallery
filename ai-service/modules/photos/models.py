@@ -13,3 +13,6 @@ class Photo(BaseModel):
   groupName: Optional[str] = None
   owner: Optional[str] = None
   createdAt: str
+  description: Optional[str] = None
+  hashtags: Optional[str] = None
+  embeddingStatus: Optional[str] = "pending"

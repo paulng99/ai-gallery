@@ -1,10 +1,32 @@
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
 from uuid import uuid4
 from .models import Photo
-from .service import add_photo, list_photos, upload_to_drive
+from .service import add_photo, list_photos, upload_to_drive, update_photo_ai_data
+from ..ai.service import ai_service
 
 router = APIRouter()
+
+async def analyze_photo_task(photo_id: str, image_url: str):
+    """Background task to analyze photo"""
+    if not image_url:
+        return
+        
+    try:
+        # 1. Generate Caption & Hashtags
+        description, hashtags = await ai_service.process_photo(photo_id, image_url)
+        
+        # 2. Update DB
+        update_photo_ai_data(
+            photo_id, 
+            description, 
+            ",".join(hashtags), 
+            "done"
+        )
+        print(f"Analysis complete for {photo_id}")
+    except Exception as e:
+        print(f"Analysis failed for {photo_id}: {e}")
+        update_photo_ai_data(photo_id, "", "", "error")
 
 @router.get("/photos")
 def get_photos():
@@ -13,6 +35,7 @@ def get_photos():
 
 @router.post("/photos")
 async def create_photo(
+  background_tasks: BackgroundTasks,
   file: UploadFile = File(...),
   activityName: str | None = Form(None),
   activityDate: str | None = Form(None),
@@ -37,6 +60,12 @@ async def create_photo(
     groupName=groupName,
     owner=owner,
     createdAt=now,
+    embeddingStatus="pending"
   )
   created = add_photo(photo)
+  
+  # Trigger Background Analysis
+  if file_url:
+      background_tasks.add_task(analyze_photo_task, photo.id, file_url)
+      
   return {"item": created.model_dump()}

@@ -50,9 +50,23 @@ export function usePhotos() {
     }
   }
 
+  async function search(query: string) {
+    if (!query.trim()) {
+      return refresh();
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/photos/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setPhotos(data.items ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     refresh();
   }, []);
 
-  return { photos, loading, refresh, upload };
+  return { photos, loading, refresh, upload, search };
 }

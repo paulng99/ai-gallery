@@ -9,5 +9,8 @@ export type Photo = {
   location?: string;
   groupName?: string;
   owner?: string;
+  description?: string;
+  hashtags?: string;
+  aiAnalysisStatus?: string;
   createdAt: string;
 };

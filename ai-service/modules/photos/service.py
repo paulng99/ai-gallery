@@ -28,10 +28,23 @@ def _init_db() -> None:
       location TEXT,
       group_name TEXT,
       owner TEXT,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      description TEXT,
+      hashtags TEXT,
+      embedding_status TEXT DEFAULT 'pending'
     )
     """
   )
+  # Check for missing columns (migration)
+  cursor = conn.execute("PRAGMA table_info(photos)")
+  cols = [row[1] for row in cursor.fetchall()]
+  if "description" not in cols:
+    conn.execute("ALTER TABLE photos ADD COLUMN description TEXT")
+  if "hashtags" not in cols:
+    conn.execute("ALTER TABLE photos ADD COLUMN hashtags TEXT")
+  if "embedding_status" not in cols:
+    conn.execute("ALTER TABLE photos ADD COLUMN embedding_status TEXT DEFAULT 'pending'")
+  
   conn.commit()
   conn.close()
 
@@ -42,7 +55,8 @@ def list_photos() -> List[Photo]:
   cursor = conn.execute(
     """
     SELECT id, file_id, file_name, file_url, mime_type, activity_name,
-           activity_date, location, group_name, owner, created_at
+           activity_date, location, group_name, owner, created_at,
+           description, hashtags, embedding_status
     FROM photos
     ORDER BY created_at DESC
     """
@@ -64,6 +78,9 @@ def list_photos() -> List[Photo]:
         groupName=row[8],
         owner=row[9],
         createdAt=row[10],
+        description=row[11],
+        hashtags=row[12],
+        embeddingStatus=row[13] or 'pending'
       )
     )
   return items
@@ -74,8 +91,9 @@ def add_photo(photo: Photo) -> Photo:
     """
     INSERT INTO photos (
       id, file_id, file_name, file_url, mime_type, activity_name,
-      activity_date, location, group_name, owner, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      activity_date, location, group_name, owner, created_at,
+      description, hashtags, embedding_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
     (
       photo.id,
@@ -89,11 +107,27 @@ def add_photo(photo: Photo) -> Photo:
       photo.groupName,
       photo.owner,
       photo.createdAt,
+      photo.description,
+      photo.hashtags,
+      photo.embeddingStatus or 'pending'
     ),
   )
   conn.commit()
   conn.close()
   return photo
+
+def update_photo_ai_data(photo_id: str, description: str, hashtags: str, status: str) -> None:
+  conn = sqlite3.connect(_get_db_path())
+  conn.execute(
+    """
+    UPDATE photos 
+    SET description = ?, hashtags = ?, embedding_status = ?
+    WHERE id = ?
+    """,
+    (description, hashtags, status, photo_id)
+  )
+  conn.commit()
+  conn.close()
 
 def _get_drive_service():
   raw = os.environ.get("GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON")

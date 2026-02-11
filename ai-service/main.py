@@ -34,8 +34,16 @@ async def analyze_image(request: ImageAnalysisRequest):
 
 @app.post("/search/semantic")
 async def semantic_search(request: SearchRequest):
-    # Placeholder for FAISS search
-    return {"results": [], "query": request.query}
+    from modules.ai.service import ai_service
+    photo_ids = await ai_service.search(request.query, request.limit)
+    
+    # Hydrate results from DB
+    from modules.photos.service import list_photos
+    all_photos = list_photos()
+    
+    # Filter photos that match IDs
+    results = [p.model_dump() for p in all_photos if p.id in photo_ids]
+    return {"results": results, "query": request.query}
 
 @app.post("/search/face")
 async def face_search(student_name: str):

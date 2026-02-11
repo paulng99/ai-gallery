@@ -93,6 +93,24 @@ export default function PhotosGrid({ photos, labels }: Props) {
               )}
             </div>
             
+            {/* Description & Hashtags */}
+            {(photo.description || photo.hashtags) && (
+              <div className="pt-2 border-t border-gray-50 space-y-2">
+                {photo.description && (
+                  <p className="text-xs text-gray-500 line-clamp-2">{photo.description}</p>
+                )}
+                {photo.hashtags && (
+                  <div className="flex flex-wrap gap-1">
+                    {photo.hashtags.split(',').slice(0, 3).map((tag, i) => (
+                      <span key={i} className="text-[10px] text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">
+                        #{tag.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-xs text-gray-400">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
