@@ -10,6 +10,8 @@ app = FastAPI(title="AI Gallery Worker", version="0.1.0")
 
 from modules.template.router import router as template_router
 app.include_router(template_router)
+from modules.students.router import router as students_router
+app.include_router(students_router)
 
 class ImageAnalysisRequest(BaseModel):
     image_url: str
