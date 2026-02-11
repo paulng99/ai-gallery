@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { usePhotos } from "../hooks/usePhotos";
 import PhotosForm from "./PhotosForm";
 import PhotosGrid from "./PhotosGrid";
-import { Globe, Plus, Images, Search, LayoutGrid, ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Globe, Plus, Images, Search, LayoutGrid, ChevronLeft, Badge } from "lucide-react";
 import clsx from "clsx";
+
 
 type LocaleKey = "hk" | "zh" | "en";
 

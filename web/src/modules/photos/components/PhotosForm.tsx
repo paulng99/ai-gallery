@@ -1,7 +1,12 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
-import { UploadCloud, Calendar, MapPin, Users, User, Tag, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { UploadCloud, Calendar, MapPin, Users, User, Loader2, X, Image as ImageIcon } from "lucide-react";
 import clsx from "clsx";
 
 type Labels = {
@@ -27,6 +32,7 @@ type Props = {
     owner?: string;
   }) => Promise<void>;
 };
+
 
 export default function PhotosForm({ labels, loading, onUpload }: Props) {
   const [files, setFiles] = useState<File[]>([]);

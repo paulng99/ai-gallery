@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { Inter, Noto_Sans_HK, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Images, Search, Globe } from "lucide-react";
 
 const inter = Inter({
+
   variable: "--font-inter",
   subsets: ["latin"],
 });

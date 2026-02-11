@@ -1,8 +1,15 @@
 'use client';
 
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type { Photo } from "../types";
-import { Calendar, MapPin, Users, User, Clock, Image as ImageIcon } from "lucide-react";
+import { Calendar, MapPin, Users, User, Clock, Image as ImageIcon, X } from "lucide-react";
 import clsx from "clsx";
 
 type Labels = {
@@ -19,6 +26,7 @@ type Props = {
   labels: Labels;
   onActivityClick?: (activityName: string) => void;
 };
+
 
 export default function PhotosGrid({ photos, labels, onActivityClick }: Props) {
   if (!photos.length) {
