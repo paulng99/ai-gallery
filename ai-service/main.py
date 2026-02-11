@@ -12,6 +12,8 @@ from modules.template.router import router as template_router
 app.include_router(template_router)
 from modules.students.router import router as students_router
 app.include_router(students_router)
+from modules.photos.router import router as photos_router
+app.include_router(photos_router)
 
 class ImageAnalysisRequest(BaseModel):
     image_url: str

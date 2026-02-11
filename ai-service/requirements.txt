@@ -9,3 +9,5 @@ fal-client>=0.2.1
 openai>=1.12.0
 python-dotenv>=1.0.1
 pydantic>=2.6.0
+google-api-python-client>=2.137.0
+google-auth>=2.34.0
