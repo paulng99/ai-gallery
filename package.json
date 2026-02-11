@@ -1,0 +1,27 @@
+{
+  "name": "ai-gallery",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd web && npm run dev",
+    "dev:backend": "cd ai-service && PYTHONPATH=./vendor python3 main.py",
+    "dev": "concurrently -n frontend,backend -c green,blue \"npm run dev:frontend\" \"npm run dev:backend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulng99/ai-gallery.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/paulng99/ai-gallery/issues"
+  },
+  "homepage": "https://github.com/paulng99/ai-gallery#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

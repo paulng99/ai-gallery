@@ -8,6 +8,9 @@ load_dotenv()
 
 app = FastAPI(title="AI Gallery Worker", version="0.1.0")
 
+from modules.template.router import router as template_router
+app.include_router(template_router)
+
 class ImageAnalysisRequest(BaseModel):
     image_url: str
     activity_name: Optional[str] = None
