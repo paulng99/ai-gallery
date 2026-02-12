@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UploadCloud, Calendar, MapPin, Users, User, Loader2, X, Image as ImageIcon } from "lucide-react";
+import { UploadCloud, Calendar, MapPin, Users, User, Loader2, X, Image as ImageIcon, Tag } from "lucide-react";
 import clsx from "clsx";
 
 type Labels = {

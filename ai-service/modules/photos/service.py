@@ -180,6 +180,42 @@ def update_photo_ai_data(photo_id: str, description: str, hashtags: str, status:
   conn.commit()
   conn.close()
 
+def get_photo_by_id(photo_id: str) -> Optional[Photo]:
+  """Get a single photo by ID."""
+  conn = sqlite3.connect(_get_db_path())
+  cursor = conn.execute(
+    """
+    SELECT id, file_id, file_name, file_url, mime_type, activity_name,
+           activity_date, location, group_name, owner, created_at,
+           description, hashtags, embedding_status
+    FROM photos
+    WHERE id = ?
+    """,
+    (photo_id,)
+  )
+  row = cursor.fetchone()
+  conn.close()
+  
+  if not row:
+    return None
+  
+  return Photo(
+    id=row[0],
+    fileId=row[1],
+    fileName=row[2],
+    fileUrl=row[3],
+    mimeType=row[4],
+    activityName=row[5],
+    activityDate=row[6],
+    location=row[7],
+    groupName=row[8],
+    owner=row[9],
+    createdAt=row[10],
+    description=row[11],
+    hashtags=row[12],
+    embeddingStatus=row[13] or 'pending'
+  )
+
 def _get_drive_service():
   raw = os.environ.get("GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON")
   if not raw:
