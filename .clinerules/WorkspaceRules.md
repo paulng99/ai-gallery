@@ -3,15 +3,16 @@
 ## 1. 系統概覽 (System Overview)
 本系統旨在為學校行政提供一個智能化的相片管理平台，結合 Next.js 的現代化前端與 FastAPI 的強大 AI 處理能力。利用 Google Drive 作為低成本存儲，並整合 LLM 與人臉識別技術，實現高效的相片檢索與歸檔。
 
-**新增需求:** 項目源代碼將會初始化為 Git 倉庫，以便上傳至您的 GitHub。
+**當前狀態:** Phase 1 & Phase 2 已完成，Phase 3-5 待開發。
 
 ## 2. 技術架構 (Technical Architecture)
 
 ### 前端 (Frontend)
-*   **Framework:** Next.js 14+ (App Router)
-*   **UI Library:** Tailwind CSS + shadcn/ui (提供美觀且一致的組件)
+*   **Framework:** Next.js 16 (App Router)
+*   **UI Library:** Tailwind CSS 4 + shadcn/ui
 *   **Language:** TypeScript
 *   **Auth:** NextAuth.js (Google OAuth + Credentials for Admin)
+*   **Animation:** Framer Motion
 
 ### 後端 (Backend - Hybrid)
 *   **Main Server (Next.js API Routes):** 處理業務邏輯、權限控制 (RBAC)、數據庫 CRUD、與 Google Drive API 交互。
@@ -22,73 +23,168 @@
 
 ### 存儲 (Storage)
 *   **File Storage:** Google Drive (Shared Folder) - 透過 Service Account 存取。
-*   **Metadata Database:** PostgreSQL (推薦) 或 SQLite (開發用)。使用 Prisma ORM 管理。
-*   **Vector Database:** FAISS (運行於 FastAPI 服務中，存儲圖像特徵與人臉特徵)。
+*   **Metadata Database:** SQLite (ai-service/data/photos.db)
+*   **Vector Database:** FAISS (運行於 FastAPI 服務中，存儲圖像特徵與人臉特徵)
 
 ### AI 服務整合 (AI Services)
-*   **LLM/VLM:** 使用 `replicate.com` 或 `fal.ai` 運行視覺模型 (如 LLaVA, CLIP) 進行相片描述。
-*   **Chat/Search:** 使用 `openrouter.ai` 進行自然語言理解與搜索意圖分析。
+*   **VLM (視覺語言模型):** OpenRouter API (Qwen-2-VL-7B) 進行相片描述與標籤生成
+*   **Embeddings:** OpenRouter (text-embedding-3-small) 或回退機制
 
 ## 3. 模組化設計 (Modular MVC Structure)
-為方便擴充，將採用模組化結構：
 
-*   `src/modules/auth`: 用戶認證、RBAC (Admin, Teacher, Student/Guest)。
-*   `src/modules/gallery`: 相片上載、瀏覽、編輯元數據 (活動名稱、日期等)。
-*   `src/modules/search`: 處理文字搜索、語意搜索、人臉搜索。
-*   `src/modules/admin`: 系統設定、用戶管理、審批日誌。
-*   `src/modules/ai-worker`: 與 FastAPI 通訊的介面。
+```
+ai-service/
+├── modules/ai/        # AI 分析服務 (FAISS, Captioning, Search)
+├── modules/photos/    # 相片 CRUD + Google Drive 上傳
+├── modules/students/  # 學生管理 (待開發)
+└── modules/template/  # 範本模組
 
-## 4. 核心功能詳細規劃
+web/
+├── src/app/           # Next.js 頁面 + API Routes
+├── src/modules/       # 功能模組
+│   ├── auth/          # 用戶認證
+│   ├── photos/        # 相片管理
+│   ├── students/      # 學生管理
+│   └── search/        # 搜尋功能
+└── src/components/ui/ # shadcn/ui 組件
+```
 
-### 4.1 用戶認證與權限 (Auth & RBAC)
+## 4. 開發進度 (Development Progress)
+
+### ✅ Phase 1: 基礎架構完善 (已完成)
+- [x] AI Service 路由重構
+- [x] OpenRouter 整合 (Qwen VL 模型)
+- [x] API Endpoints:
+  - `POST /ai/analyze/image` - 單張相片分析
+  - `POST /ai/analyze/photo/{id}` - 按 ID 分析
+  - `POST /ai/analyze/batch` - 批量分析
+  - `GET /ai/analyze/status/{id}` - 狀態查詢
+  - `POST /ai/search/semantic` - 語意搜尋
+  - `GET /ai/stats` - 統計資訊
+- [x] 數據庫更新 (description, hashtags, embedding_status)
+- [x] 背景任務處理
+
+### ✅ Phase 2: 語意搜尋功能 (已完成)
+- [x] FAISS 向量索引管理
+- [x] 語意搜尋 API
+- [x] 分頁支援
+
+### 🔄 Phase 3: 人臉辨識系統 (待開發)
+- [ ] 學生人臉資料庫模型設計
+- [ ] 人臉檢測 (face_recognition 庫)
+- [ ] 人臉特徵提取 (Embeddings)
+- [ ] 人臉比對 API
+- [ ] 未知人臉標記與命名介面
+
+### ⏳ Phase 4: 認證系統 (待開發)
+- [ ] NextAuth.js 配置
+- [ ] Google OAuth 整合
+- [ ] Admin 登入 (Credentials)
+- [ ] RBAC 權限控制
+- [ ] API 保護
+
+### ⏳ Phase 5: Google Drive 整合 (待開發)
+- [ ] Service Account 配置
+- [ ] 自動化上傳流程
+- [ ] 權限管理 (分享連結)
+- [ ] 檔案清理策略
+
+## 5. 核心功能詳細規劃
+
+### 5.1 用戶認證與權限 (Auth & RBAC) - Phase 4
 *   **登入方式:**
-    *   **Google Login:** 適用於全校師生 (限制特定 domain)。
-    *   **Admin Login:** 預設管理員帳號 (Username/Password)。
+    *   **Google Login:** 適用於全校師生 (限制特定 domain)
+    *   **Admin Login:** 預設管理員帳號 (Username/Password)
 *   **角色 (Roles):**
-    *   `Admin`: 管理所有相片、標籤人臉、系統設定。
-    *   `Uploader` (e.g. 老師): 上載相片、編輯自己上載的活動。
-    *   `Viewer` (e.g. 學生/家長): 僅瀏覽與搜索。
+    *   `Admin`: 管理所有相片、標籤人臉、系統設定
+    *   `Uploader` (e.g. 老師): 上載相片、編輯自己上載的活動
+    *   `Viewer` (e.g. 學生/家長): 僅瀏覽與搜索
 
-### 4.2 相片上載與管理 (Upload & Management)
+### 5.2 相片上載與管理 - Phase 5
 *   **上載流程:**
-    1.  填寫表單：活動名稱、日期 (Date Picker)、地點、負責組別 (Dropdown)、負責人。
-    2.  選擇相片 (支持多圖)。
-    3.  前端壓縮預覽 -> 上載至 Google Drive。
-    4.  後台異步觸發 AI 分析。
-*   **Google Drive 整合:** 建立結構化文件夾 `/{Year}/{Activity_Name}/`。
+    1.  填寫表單：活動名稱、日期、地點、負責組別、負責人
+    2.  選擇相片 (支持多圖)
+    3.  前端壓縮預覽 -> 上載至 Google Drive
+    4.  後台異步觸發 AI 分析
+*   **Google Drive 整合:** 建立結構化文件夾 `/{Year}/{Activity_Name}/`
 
-### 4.3 AI 智能分析 (AI Analysis - FastAPI)
-*   **內容標註:** 呼叫 `fal.ai` (e.g. CLIP/LLaVA) 生成描述 (Caption) 與 關鍵字 (Hashtags)。
-*   **人臉識別:**
-    1.  檢測相片中的人臉。
-    2.  計算人臉特徵向量 (Embeddings)。
-    3.  與已知學生特徵庫比對 (FAISS)。
-    4.  若為未知人臉，標記為 `Unknown_ID`，待管理員命名。
-    5.  **學習機制:** 當管理員將 `Unknown_ID` 標記為 "陳大文"，系統自動更新該特徵向量的標籤。
+### 5.3 AI 智能分析 - Phase 1 & 3
+*   **內容標註:** 使用 OpenRouter (Qwen-2-VL) 生成描述 (Caption) 與關鍵字 (Hashtags)
+*   **人臉識別 (Phase 3):**
+    1.  檢測相片中的人臉
+    2.  計算人臉特徵向量 (Embeddings)
+    3.  與已知學生特徵庫比對 (FAISS)
+    4.  若為未知人臉，標記為 `Unknown_ID`，待管理員命名
+    5.  **學習機制:** 當管理員將 `Unknown_ID` 標記為 "陳大文"，系統自動更新該特徵向量的標籤
 
-### 4.4 智能搜索 (Smart Search)
+### 5.4 智能搜索
 *   **語意搜索 (Semantic Search):**
     *   用戶輸入: "操場上跑步的學生"
-    *   LLM 轉換: 提取關鍵字 "Playground", "Running", "Student"。
-    *   FAISS 檢索: 找出圖像內容向量最接近的相片。
-*   **人臉搜索:**
-    *   輸入學生姓名 -> 查找其 Face ID -> 在 FAISS 中檢索含有該 Face ID 的相片。
+    *   LLM 轉換: 提取關鍵字
+    *   FAISS 檢索: 找出圖像內容向量最接近的相片
+*   **人臉搜索 (Phase 3):**
+    *   輸入學生姓名 -> 查找其 Face ID -> 在 FAISS 中檢索含有該 Face ID 的相片
 
-## 5. 版本控制與交付 (Version Control & Delivery)
-*   **Git 初始化:** 項目建立後，我將初始化本地 Git 倉庫。
-*   **GitHub 上傳:** 我將提供指令，協助您將代碼推送到您的 GitHub 倉庫。
+## 6. API 端點
 
-## 6. 待確認問題 (Questions to Clarify)
-在開始編碼前，我需要確認以下幾點以確保系統符合您的需求：
+### AI 分析
+| 方法 | 端點 | 說明 |
+|------|------|------|
+| POST | `/ai/analyze/image` | 單張圖片分析 |
+| POST | `/ai/analyze/photo/{photo_id}` | 按 ID 分析相片 |
+| POST | `/ai/analyze/batch` | 批量相片分析 |
+| GET | `/ai/analyze/status/{photo_id}` | 分析狀態查詢 |
+| POST | `/ai/search/semantic` | 語意搜尋 |
+| GET | `/ai/stats` | AI 服務統計 |
 
-1.  **人臉數據庫初始化:** 學校是否有現成的學生證件照可以批量導入作為基準？還是完全依賴後續的人手標註？
-2.  **部署環境:** 系統預計部署在學校內部的伺服器，還是雲端平台 (如 Vercel + Railway/AWS)？這影響 FAISS (需要持久化存儲) 的部署策略。
-3.  **數據庫選擇:** 開發階段是否接受使用 SQLite (文件型數據庫)，還是直接使用 Docker 運行的 PostgreSQL？
-4.  **Google Drive 權限:** 是否已有 Google Cloud Service Account 的 JSON Key？(這是伺服器端操作 GDrive 的最佳實踐)。
+### 相片管理
+| 方法 | 端點 | 說明 |
+|------|------|------|
+| GET | `/photos` | 列出相片 |
+| POST | `/photos` | 上傳相片 |
+| GET | `/photos/groups` | 活動分組 |
 
-## 7. 下一步 (Next Steps)
-1.  初始化 Next.js 專案與 FastAPI 專案結構。
-2.  設置 Docker Compose (如果需要本地 DB)。
-3.  實現 Google Login 與基礎 RBAC。
-4.  搭建 FastAPI 基礎架構並連接 FAISS。
-5.  初始化 Git 並提交初始代碼。
+## 7. 數據庫結構
+
+### photos 表 (SQLite)
+```sql
+CREATE TABLE photos (
+  id TEXT PRIMARY KEY,
+  file_id TEXT,
+  file_name TEXT NOT NULL,
+  file_url TEXT,
+  mime_type TEXT,
+  activity_name TEXT,
+  activity_date TEXT,
+  location TEXT,
+  group_name TEXT,
+  owner TEXT,
+  created_at TEXT NOT NULL,
+  description TEXT,
+  hashtags TEXT,
+  embedding_status TEXT DEFAULT 'pending'
+)
+```
+
+## 8. 快速開始
+
+```bash
+# 前端
+cd web
+npm run dev
+
+# 後端
+cd ai-service
+python3 main.py
+```
+
+## 9. 環境變數
+
+### ai-service/.env
+```
+OPENAI_API_KEY=your-openrouter-api-key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+PHOTO_DB_PATH=./data/photos.db
+GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON={"type": "service_account", ...}
+GOOGLE_DRIVE_FOLDER_ID=your-folder-id
+```
