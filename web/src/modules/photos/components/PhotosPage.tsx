@@ -8,85 +8,16 @@ import PhotosGrid from "./PhotosGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Globe, Plus, Images, Search, LayoutGrid, ChevronLeft, Badge } from "lucide-react";
+import { Plus, Images, Search, LayoutGrid, ChevronLeft, Badge } from "lucide-react";
 import clsx from "clsx";
-
-
-type LocaleKey = "hk" | "zh" | "en";
-
-const copy = {
-  hk: {
-    pageTitle: "校園相簿",
-    uploadTitle: "上傳相片",
-    file: "相片檔案",
-    activityName: "活動名稱",
-    activityDate: "活動日期",
-    location: "地點",
-    groupName: "負責組別",
-    owner: "負責人",
-    upload: "開始上傳",
-    empty: "暫無相片",
-    allPhotos: "所有相片",
-    switchToUpload: "上傳新相片",
-    switchToList: "返回列表",
-    searchPlaceholder: "搜尋相片 (例如: 跑步、頒獎...)",
-    searchResults: "搜尋結果",
-    viewAlbums: "活動相簿",
-    viewAll: "所有相片",
-    backToAlbums: "返回相簿",
-    items: "張相片",
-  },
-  zh: {
-    pageTitle: "校园相册",
-    uploadTitle: "上传照片",
-    file: "照片文件",
-    activityName: "活动名称",
-    activityDate: "活动日期",
-    location: "地点",
-    groupName: "负责组别",
-    owner: "负责人",
-    upload: "开始上传",
-    empty: "暂无照片",
-    allPhotos: "所有照片",
-    switchToUpload: "上传新照片",
-    switchToList: "返回列表",
-    searchPlaceholder: "搜索照片 (例如: 跑步、颁奖...)",
-    searchResults: "搜索结果",
-    viewAlbums: "活动相册",
-    viewAll: "所有照片",
-    backToAlbums: "返回相册",
-    items: "张照片",
-  },
-  en: {
-    pageTitle: "School Gallery",
-    uploadTitle: "Upload Photos",
-    file: "Photo File",
-    activityName: "Activity Name",
-    activityDate: "Activity Date",
-    location: "Location",
-    groupName: "Group",
-    owner: "Owner",
-    upload: "Start Upload",
-    empty: "No photos yet",
-    allPhotos: "All Photos",
-    switchToUpload: "Upload New",
-    switchToList: "Back to List",
-    searchPlaceholder: "Search photos (e.g. running, award...)",
-    searchResults: "Search Results",
-    viewAlbums: "Albums",
-    viewAll: "All Photos",
-    backToAlbums: "Back to Albums",
-    items: "items",
-  },
-};
+import { useLocale } from "@/contexts/LocaleContext";
 
 export default function PhotosPage() {
-  const [locale, setLocale] = useState<LocaleKey>("hk");
+  const { labels } = useLocale();
   const [view, setView] = useState<"albums" | "grid" | "upload">("albums");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
   const { photos, groups, loading, upload, search, filterByActivity } = usePhotos();
-  const labels = copy[locale];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,28 +85,6 @@ export default function PhotosPage() {
                 </>
               )}
             </button>
-
-            <div className="h-6 w-px bg-gray-200 mx-1" />
-
-            <div className="relative group">
-              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600">
-                <Globe className="w-5 h-5" />
-              </button>
-              <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden hidden group-hover:block p-1">
-                {(["hk", "zh", "en"] as const).map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLocale(l)}
-                    className={clsx(
-                      "w-full text-left px-3 py-2 text-sm rounded-md transition-colors",
-                      locale === l ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    {l === "hk" ? "繁體中文" : l === "zh" ? "简体中文" : "English"}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </header>
@@ -260,9 +169,11 @@ export default function PhotosPage() {
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {selectedActivity && (
-                  <button 
+                  <button
+                    type="button"
                     onClick={handleBackToAlbums}
                     className="p-1 rounded-full hover:bg-gray-100 text-gray-600"
+                    aria-label={labels.backToAlbums}
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
